@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Security System</title>
+        <style>
+            body{
+                font-family: 'Courier New', Courier, monospace;
+                text-align: center;
+                padding: 50px;
+                background-color: #1a1a1a;
+                color: white;
+            }
+            #profile-card {
+                border: 2px solid #ff4444;
+                padding: 20px;
+                border-radius: 15px;
+                display: inline-block;
+             }
+            .highlight {
+            background-color: #00ff00;
+            color: black;
+            font-weight: bold;
+            padding: 5px;    
+            }
+    </style>
+</head>
+<body>
+    <div id="profile-card">
+        <h1 id="status">Access Denied</h1>
+        <p class="hackedStatus"> Hacked by... Nobody</p>
+    </div>
+    <script>
+        let header = document.getElementById("status");
+       header.textContent = "Access Granted";
+       header.style.color = "green";
+       let paragraph = document.getElementsByClassName("hackedStatus")[0];
+        paragraph.textContent = "Hacked by Parker" 
+    </script>
+</body>
+</html>
