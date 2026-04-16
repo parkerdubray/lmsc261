@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS DRUMSET</title>
+    <style>
+       
+    </style>
+</head>
+<body>
+
+    <button id="kick" type="button"> 
+        <img src="images/kick.png"  alt="kick">
+    </button>    
+
+    <button id="snare" type="button"> 
+        <img src="images/snare.png" alt="snare">
+    </button>
+
+    <button id="crash" type="button"> 
+        <img src="images/crash.png" alt="crash">
+    </button>
+
+    <button id="tom1" type="button"> 
+        <img src="images/tom1.png" alt="tom1">
+    </button>
+
+    <button id="tom2" type="button">
+        <img src="images/tom2.png" alt="tom2">
+    </button>
+
+    <button id="tom3" type="button"> 
+        <img src="images/tom3.png" alt="tom3">
+    </button>
+
+    <button id="tom4" type="button"> 
+        <img src="images/tom4.png" alt="tom4">
+    </button>
+</body>
+<script>
+   // KICK
+    let kickButton = document.querySelector("#kick");
+    function playKick(){
+    let kickSound = new Audio("sounds/kick-bass.mp3");
+   kickSound.play ()
+    }
+   kickButton.addEventListener("click", playKick);
+   
+    // SNARE
+        let snareButton = document.querySelector("#snare");
+    function playSnare(){
+    let snareSound = new Audio("sounds/snare.mp3");
+    snareSound.play ()
+    }
+   snareButton.addEventListener("click", playSnare);  
+   // CRASH
+       let crashButton = document.querySelector("#crash");
+    function playCrash(){
+    let crashSound = new Audio("sounds/crash.mp3");
+   crashSound.play ()
+    }
+   crashButton.addEventListener("click", playCrash);
+   // T1
+        let T1Button = document.querySelector("#tom1");
+    function playT1(){
+    let T1Sound = new Audio("sounds/tom-1.mp3");
+   T1Sound.play ()
+    }
+   T1Button.addEventListener("click", playT1);
+   // T2
+       let T2Button = document.querySelector("#tom2");
+    function playT2(){
+    let T2Sound = new Audio("sounds/tom-2.mp3");
+   T2Sound.play ()
+    }
+   T2Button.addEventListener("click", playT2);
+   // T3
+        let T3Button = document.querySelector("#tom3");
+    function playT3(){
+    let T3Sound = new Audio("sounds/tom-3.mp3");
+   T3Sound.play ()
+    }
+   T3Button.addEventListener("click", playT3);
+   // T4
+       let T4Button = document.querySelector("#tom4");
+    function playT4(){
+    let T4Sound = new Audio("sounds/tom-4.mp3");
+   T4Sound.play ()
+    }
+   T4Button.addEventListener("click", playT4);
+</script>
+</html>
