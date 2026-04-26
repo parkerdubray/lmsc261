@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.13/lib/p5.min.js"></script>
+</head>
+<body>
+    <h1> Parker's Example Website</h1>
+    <h4>By Parker DuBray</h4>
+    <hr />
+    <script>
+       const canvasHeight = 400;
+       const canvasWidth = canvasHeight *1.5
+       let sunX = 0;
+        
+       function setup() {
+            createCanvas(canvasWidth,canvasHeight);
+        }
+
+
+        function draw() {
+            background(150);
+            drawsun();
+            drawhouse();
+            drawgrass();
+        }
+        function drawsun(){
+            fill("yellow");
+            circle(sunX,0,canvasHeight);
+        }
+        function drawhouse(){
+            fill("purple")
+            rect(canvasHeight/2,canvasHeight/2,canvasHeight/2,canvasHeight/2);
+            fill("blue");
+            triangle(canvasHeight/2,canvasHeight/2,canvasHeight,canvasHeight/2,canvasWidth/2,canvasHeight/4);
+        }
+        function drawgrass(){
+            fill("green");
+            let grassHeight = canvasHeight/ 10;
+            let grassWidth = canvasWidth/ 10;
+            for (let tracker = 0; tracker < canvasWidth; tracker += grassWidth) {
+                triangle(
+                tracker,
+                canvasHeight,
+                tracker + grassWidth/2,
+                canvasHeight-grassHeight,
+                tracker + grassWidth,
+                canvasHeight,
+            );
+            }
+        }
+
+    </script>
+</body>
+</html>
