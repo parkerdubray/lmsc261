@@ -75,7 +75,8 @@ list_legend = tk.Label(root, text="# | Task | Date | Status")
 list_legend.place(relx=0.5, rely=.4, anchor="center", relwidth=0.8, relheight=.075)
 
 # List display
-listbox = tk.Listbox(root, width=75)
+listbox = tk.Listbox(root, width=75, selectmode = tk.MULTIPLE)
+
 listbox.place(relx=0.5, rely=.7, anchor="center", relwidth=0.8,relheight=0.5)
 
 # ---------------- FUNCTIONS ---------------- #
@@ -139,32 +140,56 @@ def update_list():
         
         listbox.insert(tk.END, display)
 
-def mark_done():
+def mark_done(event=None):
     try:
-        index = listbox.curselection()[0]
+        selected_indices = listbox.curselection()
         visible_tasks = get_visible_tasks()
 
-        visible_tasks[index]["done"] = True
+        for index in selected_indices:
+
+             visible_tasks[index]["done"] = not visible_tasks[index]["done"]
+        save_tasks()
+        update_list()
+    
+    except IndexError:
+        pass
+listbox.bind("<Return>", mark_done)
+
+
+def delete_task(event=None):
+    try:
+
+        selected_indecies = listbox.curselection()
+        visible_tasks = get_visible_tasks()
+
+        for index in reversed(selected_indecies):
+        
+             tasks_to_delete = visible_tasks[index]
+             tasks.remove(tasks_to_delete)
+             
         save_tasks()
         update_list()
     
     except IndexError:
         pass
 
-
+listbox.bind("<BackSpace>", delete_task)
 
 # ---------------- BUTTONS ---------------- #
 
 add_button = tk.Button(root, text="Add Task", command=add_task)
 add_button.place(relx=0.875, y=80, anchor="center")
 
-done_button = tk.Button(root, text="Mark Done", command=mark_done)
-done_button.place(relx=0.525, rely=.3, anchor="center")
+done_button = tk.Button(root, text="Toggle Done", command=mark_done)
+done_button.place(relx=0.5125, rely=.3, anchor="center")
 
-
-
-show_completed_button = tk.Button(root, text= "Show/Hide Completed Tasks", command= toggle_completed)
+show_completed_button = tk.Button(root, text= "Show/Hide Completed Tasks", command=toggle_completed)
 show_completed_button.place(relx=0.75, rely=0.3, anchor="center")
+
+delete_button = tk.Button(root, text= "Remove", command=delete_task)
+delete_button.place(relx= 0.3555, rely= .3, anchor="center")
+
+
 
 
 load_tasks()
