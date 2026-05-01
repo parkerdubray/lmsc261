@@ -1,24 +1,20 @@
 import tkinter as tk
-import json
+import json #json imported to create storage for tasks for the user to recall in later instances
 import os  
-import datetime as dt
 from tkinter import ttk
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-task_file = os.path.join(BASE_DIR, "tasks.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #creates file path and location for json file to be stored
+task_file = os.path.join(BASE_DIR, "tasks.json") #names json file
 
-tasks = []
 #-----------------JSON-----------------#
 
 
-def load_tasks():
+def load_tasks(): #loads tasks json file at the start so the user can see tasks from previous instances of the program.
     global tasks
     try:
         with open(task_file, "r") as f:
             tasks = json.load(f)
         
-        for task in tasks:
-            if "due" not in task:
-                task["due"] = ""
+        
     except FileNotFoundError:
         tasks = []
 
@@ -26,9 +22,6 @@ def load_tasks():
 #---------------TKINTER---------------#
 
 root = tk.Tk()
-root.lift()
-root.attributes('-topmost', True)
-root.after(100, lambda: root.attributes('-topmost', False))
 
 root.title("P-Assist")
 root.geometry("750x450")
@@ -65,7 +58,7 @@ etc_entry.place(relx=0.6, y=80, anchor="center" , relwidth=0.1, height=40)
 
 #Priority Box
 options = ["low", "medium", "high", "urgent"]
-priority_entry = ttk.Combobox(root, values= options, state="readonly")
+priority_entry = ttk.Combobox(root, values= options, state="readonly") #ttk was imported at the start of code to add this combobox for priority entry
 priority_entry.set("Select...")
 priority_entry.place(relx=.73, y=80, anchor="center", relwidth=.15, height=40)
 
@@ -81,85 +74,89 @@ listbox.place(relx=0.5, rely=.7, anchor="center", relwidth=0.8,relheight=0.5)
 
 # ---------------- FUNCTIONS ---------------- #
 
-def save_tasks():
+def save_tasks(): #creates a save function to be recalled when information is added, changed, or removed. opens the json file and dumps new information
     with open(task_file, "w") as f:
         json.dump(tasks, f)
 
 def add_task(event=None):
-    task = task_entry.get().strip()
-    due_date = date_entry.get().strip()
-    etc = etc_entry.get().strip()
-    priority = priority_entry.get().strip()
+    task = task_entry.get().strip() #gets the users input from the task entry box
+    due_date = date_entry.get().strip() #gets user input from date entry box
+    etc = etc_entry.get().strip() #gets user input from ETC entry box
+    priority = priority_entry.get().strip() #gets input from priority dropdown list
 
 
     if task == "":
         return
 
     tasks.append({"task": task, "done": False, "due": due_date, "etc": etc, "priority": priority})
-    task_entry.delete(0, tk.END)
+    task_entry.delete(0, tk.END) # delete clears the input box after task has been added so that new information can be entered
     date_entry.delete(0,tk.END)
     etc_entry.delete(0,tk.END)
     priority_entry.delete(0,tk.END)
 
     save_tasks()
-    update_list()
+    update_list() 
+#Binds Return Key to submit all task data
 task_entry.bind("<Return>", add_task)
 date_entry.bind("<Return>", add_task)
 etc_entry.bind("<Return>", add_task)
 priority_entry.bind("<Return>", add_task)
 
+
+#Allows user to hide completed tasks so they dont clutter listbox
 def toggle_completed():
     global show_completed
     show_completed = not show_completed
     update_list()
 
-show_completed = False
+show_completed = False #False sets default to hide completed tasks
 def get_visible_tasks():
     return [t for t in tasks if show_completed or not t["done"]]
 
-def update_list():
+def update_list(): #updates the list when new tasks are added, or the status of a task is changed
     listbox.delete(0, tk.END)
 
     visible_tasks = get_visible_tasks()
 
     for i, task in enumerate(visible_tasks):
         status = "Done" if task["done"] else "Not Done"
-        due = task.get("due", "")
+        due = task.get("due", "") # the second set of empty quotations accounts for no entry in the box, allowing the user to only add date, etc, and priority if they want
         etc = task.get("etc", "")
         priority = task.get("priority", "") 
 
-        parts = [f"{i+1}. {task.get('task', 'Untitled')}"]
+        parts = [f"{i+1}. {task.get('task')}"] 
         if due:
-            parts.append(f"Due: {due}")
+            parts.append(f"Due: {due}") 
         if etc:
             parts.append(f"ETC: {etc}")
         if priority:
             parts.append(f"Priority: {priority}")
         parts.append(status)
-        display = " | ".join(parts)
+        display = " | ".join(parts) #Joins all individual parts at the end to create a uniform task, allowing the other boxes to be optional
         
         listbox.insert(tk.END, display)
 
 def mark_done(event=None):
     try:
-        selected_indices = listbox.curselection()
-        visible_tasks = get_visible_tasks()
+        selected_indices = listbox.curselection() #creates a variable containing items selected by cursor so we can apply to all
+        visible_tasks = get_visible_tasks() 
 
         for index in selected_indices:
 
-             visible_tasks[index]["done"] = not visible_tasks[index]["done"]
+             visible_tasks[index]["done"] = not visible_tasks[index]["done"] #second half allows the user to change tasks marked as done to not done if a mistake was made
+            
         save_tasks()
         update_list()
     
     except IndexError:
         pass
-listbox.bind("<Return>", mark_done)
+listbox.bind("<Return>", mark_done) #binds Return key to toggling done/not done when there is a selection in the listbox
 
 
-def delete_task(event=None):
+def delete_task(event=None): #delete function allows user to remove tasks that are incomplete or complete if the user decides they do not need them anymore
     try:
 
-        selected_indecies = listbox.curselection()
+        selected_indecies = listbox.curselection() #selected indecies variable allows for the selection of multiple tasks just like the toggle done function
         visible_tasks = get_visible_tasks()
 
         for index in reversed(selected_indecies):
@@ -173,7 +170,7 @@ def delete_task(event=None):
     except IndexError:
         pass
 
-listbox.bind("<BackSpace>", delete_task)
+listbox.bind("<BackSpace>", delete_task) #Binds Backspace to removing tasks from the list
 
 # ---------------- BUTTONS ---------------- #
 
