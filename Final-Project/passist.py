@@ -1,26 +1,10 @@
 import tkinter as tk
 import json #json imported to create storage for tasks for the user to recall in later instances
 import os  
+from tkcalendar import Calendar, DateEntry
 from tkinter import ttk
-BASE_DIR = os.path.dirname(os.path.abspath(__file__)) #creates file path and location for json file to be stored
-task_file = os.path.join(BASE_DIR, "tasks.json") #names json file
-
-#-----------------JSON-----------------#
-
-# AI suggested using json file to store tasks between instances and provied some ways to integrate along these resources to learn when asked:
-#  https://docs.python.org/3/library/json.html
-#  https://www.geeksforgeeks.org/javascript/json/
-def load_tasks(): #loads tasks json file at the start so the user can see tasks from previous instances of the program.
-    global tasks
-    try:
-        with open(task_file, "r") as f:
-            tasks = json.load(f)
-        
-        
-    except FileNotFoundError:
-        tasks = []
-
-
+task_file = os.path.dirname(os.path.abspath(__file__)) + "/tasks.json" #creates file path and location for json file to be stored
+show_completed = False #False sets default to hide completed tasks
 #---------------TKINTER---------------#
 
 root = tk.Tk()
@@ -58,6 +42,8 @@ task_entry.place(relx=0.3, y=80, anchor="center" ,relwidth=0.4, height="40")
 # Task Date Box
 date_entry = tk.Entry(root, width=15)
 date_entry.place(relx=0.5, y=80, anchor="center" , relwidth=0.1, height=40)
+#date_entry = DateEntry(root, width=15, background='white', foreground='black', borderwidth=2)
+#date_entry.place(relx=0.5, y=80, anchor="center" , relwidth=0.1, height=40)
 
 #ETC Box
 etc_entry = tk.Entry(root, width=15)
@@ -83,8 +69,46 @@ listbox.place(relx=0.5, rely=.7, anchor="center", relwidth=0.8,relheight=0.5)
 # ---------------- FUNCTIONS ---------------- #
 
 def save_tasks(): #creates a save function to be recalled when information is added, changed, or removed. opens the json file and dumps new information
-    with open(task_file, "w") as f:
-        json.dump(tasks, f)
+    with open(task_file, "w") as file_contents:
+        json.dump(tasks, file_contents)
+        
+def update_list(): #updates the listbox when new tasks are added, or the status of a task is changed
+    listbox.delete(0, tk.END)
+
+    visible_tasks = get_visible_tasks()
+
+    for i, task in enumerate(visible_tasks): #Enumerate function learned from medium article by sarina nemati on building a python to-do list app https://medium.com/@sarinanemati/how-i-built-my-first-python-to-do-list-app-and-what-i-learned-ba5b75110ce6
+        #AI assisted in integrating visible tasks function into the enumeration, so it only numerically lists visible tasks
+        status = "Done" if task["done"] else "Not Done"
+        due = task.get("due", "") # the second set of empty quotations accounts for no entry in the box, allowing the user to only add date, etc, and priority if they want
+        etc = task.get("etc", "")
+        priority = task.get("priority", "") 
+
+        parts = [f"{i+1}. {task.get('task')}"] # AI assisted in the code to seperate each part of task and then add them at the end to allow for no input for some boxes
+        #creats an array labeled 'parts' where we add all task components using the append function. each item in the array gets a number from the "{i+1}."
+        if due:
+            parts.append(f"Due: {due}") 
+        if etc:
+            parts.append(f"ETC: {etc}")
+        if priority:
+            parts.append(f"Priority: {priority}")
+        parts.append(status)
+        display = " | ".join(parts) #Joins all individual parts at the end to create a uniform string task, allowing the other boxes to be optional
+        
+        listbox.insert(tk.END, display)
+
+# AI suggested using json file to store tasks between instances and provied some ways to integrate along these resources to learn when asked:
+#  https://docs.python.org/3/library/json.html
+#  https://www.geeksforgeeks.org/javascript/json/
+def load_tasks(): #loads tasks json file at the start so the user can see tasks from previous instances of the program.
+    global tasks
+    try:
+        with open(task_file, "r") as file_contents:
+            tasks = json.load(file_contents)
+        
+        
+    except FileNotFoundError:
+        tasks = []
 
 def add_task(event=None): #AI Assistance with formatting and troubleshooting
     task = task_entry.get().strip() #gets the users input from the task entry box
@@ -118,49 +142,26 @@ def toggle_completed():
     show_completed = not show_completed
     update_list()
 
-show_completed = False #False sets default to hide completed tasks
 def get_visible_tasks(): #AI ASSISTED
-    return [t for t in tasks if show_completed or not t["done"]]
+    return [task for task in tasks if show_completed or not task["done"]]
 
-def update_list(): #updates the list when new tasks are added, or the status of a task is changed
-    listbox.delete(0, tk.END)
 
-    visible_tasks = get_visible_tasks()
-
-    for i, task in enumerate(visible_tasks): #Enumerate function learned from medium article by sarina nemati on building a python to-do list app https://medium.com/@sarinanemati/how-i-built-my-first-python-to-do-list-app-and-what-i-learned-ba5b75110ce6
-        #AI assisted in integrating visible tasks function into the enumeration, so it only numerically lists visible tasks
-        status = "Done" if task["done"] else "Not Done"
-        due = task.get("due", "") # the second set of empty quotations accounts for no entry in the box, allowing the user to only add date, etc, and priority if they want
-        etc = task.get("etc", "")
-        priority = task.get("priority", "") 
-
-        parts = [f"{i+1}. {task.get('task')}"] # AI assisted in the code to seperate each part of task and then add them at the end to allow for no input for some boxes
-        if due:
-            parts.append(f"Due: {due}") 
-        if etc:
-            parts.append(f"ETC: {etc}")
-        if priority:
-            parts.append(f"Priority: {priority}")
-        parts.append(status)
-        display = " | ".join(parts) #Joins all individual parts at the end to create a uniform task, allowing the other boxes to be optional
-        
-        listbox.insert(tk.END, display)
-
-def mark_done(event=None):
+def toggle_done(event=None):
     try:
-        selected_indices = listbox.curselection() #creates a variable containing items selected by cursor so we can apply to all
+        selected_tasks = listbox.curselection() #creates a variable containing items selected by cursor so we can apply to all
+        #selected tasks list is same size as visible tasks list
         visible_tasks = get_visible_tasks() 
 
-        for index in selected_indices:
+        for task in selected_tasks:
 
-             visible_tasks[index]["done"] = not visible_tasks[index]["done"] #second half allows the user to change tasks marked as done to not done if a mistake was made
+             visible_tasks[task]["done"] = not visible_tasks[task]["done"] #second half allows the user to change tasks marked as done to not done if a mistake was made
             
         save_tasks()
         update_list()
     
     except IndexError:
         pass
-listbox.bind("<Return>", mark_done) #binds Return key to toggling done/not done when there is a selection in the listbox
+listbox.bind("<Return>", toggle_done) #binds Return key to toggling done/not done when there is a selection in the listbox
 
 
 def delete_task(event=None): #delete function allows user to remove tasks that are incomplete or complete if the user decides they do not need them anymore
@@ -168,12 +169,12 @@ def delete_task(event=None): #delete function allows user to remove tasks that a
     #https://stackoverflow.com/questions/7118276/how-to-remove-specific-element-from-an-array-using-python
     try:
 
-        selected_indecies = listbox.curselection() #selected indecies variable allows for the selection of multiple tasks just like the toggle done function
+        selected_tasks = listbox.curselection() #selected indecies variable allows for the selection of multiple tasks just like the toggle done function
         visible_tasks = get_visible_tasks()
 
-        for index in reversed(selected_indecies):
+        for task in selected_tasks:
         
-             tasks_to_delete = visible_tasks[index]
+             tasks_to_delete = visible_tasks[task]
              tasks.remove(tasks_to_delete)
              
         save_tasks()
@@ -189,7 +190,7 @@ listbox.bind("<BackSpace>", delete_task) #Binds Backspace to removing tasks from
 add_button = tk.Button(root, text="Add Task", command=add_task)
 add_button.place(relx=0.875, y=80, anchor="center")
 
-done_button = tk.Button(root, text="Toggle Done", command=mark_done)
+done_button = tk.Button(root, text="Toggle Done", command=toggle_done)
 done_button.place(relx=0.5125, rely=.3, anchor="center")
 
 show_completed_button = tk.Button(root, text= "Show/Hide Completed Tasks", command=toggle_completed)
